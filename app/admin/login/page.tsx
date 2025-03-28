@@ -26,6 +26,8 @@ export default function LoginPage() {
     setError("")
 
     try {
+      console.log("Enviando dados de login:", { username, password })
+
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -36,6 +38,8 @@ export default function LoginPage() {
 
       const data = await response.json()
 
+      console.log("Resposta do servidor:", data)
+
       if (!response.ok) {
         throw new Error(data.error || "Erro ao fazer login")
       }
@@ -44,6 +48,7 @@ export default function LoginPage() {
       localStorage.setItem("admin", JSON.stringify(data))
       router.push("/admin/dashboard")
     } catch (error) {
+      console.error("Erro no login:", error)
       setError(error instanceof Error ? error.message : "Erro ao fazer login")
     } finally {
       setLoading(false)

@@ -5,24 +5,28 @@ export async function POST(request: Request) {
   try {
     const { username, password } = await request.json()
 
-    // Buscar usuário pelo username
-    const { data: users, error: fetchError } = await supabase
-      .from("users")
-      .select("*")
-      .eq("username", username)
-      .single()
+    console.log("Tentativa de login:", { username }) // Log para debug
 
-    if (fetchError || !users) {
+    // Buscar usuário pelo username
+    const { data: user, error: fetchError } = await supabase.from("users").select("*").eq("username", username).single()
+
+    if (fetchError) {
+      console.error("Erro ao buscar usuário:", fetchError)
       return NextResponse.json({ error: "Usuário ou senha inválidos" }, { status: 401 })
     }
 
-    // Verificar senha (em produção, use hash+salt)
-    if (users.password !== password) {
+    console.log("Usuário encontrado:", user) // Log para debug
+
+    // Verificar senha
+    if (user.password !== password) {
+      console.log("Senha incorreta") // Log para debug
       return NextResponse.json({ error: "Usuário ou senha inválidos" }, { status: 401 })
     }
 
     // Retornar dados do usuário (sem a senha)
-    const { password: _, ...userWithoutPassword } = users
+    const { password: _, ...userWithoutPassword } = user
+
+    console.log("Login bem-sucedido:", userWithoutPassword) // Log para debug
 
     return NextResponse.json(userWithoutPassword)
   } catch (error) {
