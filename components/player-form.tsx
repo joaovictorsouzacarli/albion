@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
-import { Check } from "lucide-react"
+import { Check, Loader2 } from "lucide-react"
 
 // Classes de DPS disponíveis
 const DPS_CLASSES = [
@@ -82,6 +82,8 @@ export function PlayerForm() {
     }
 
     try {
+      console.log("Enviando dados:", formData)
+
       const response = await fetch("/api/records", {
         method: "POST",
         headers: {
@@ -95,9 +97,12 @@ export function PlayerForm() {
         }),
       })
 
+      const data = await response.json()
+
+      console.log("Resposta do servidor:", data)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Erro ao adicionar registro")
+        throw new Error(data.error || "Erro ao adicionar registro")
       }
 
       toast({
@@ -113,6 +118,7 @@ export function PlayerForm() {
         value: "",
       })
     } catch (error) {
+      console.error("Erro:", error)
       toast({
         title: "Erro",
         description: error instanceof Error ? error.message : "Erro ao adicionar registro",
@@ -190,8 +196,17 @@ export function PlayerForm() {
           </div>
 
           <Button type="submit" className="w-full bg-amber-400 text-black hover:bg-amber-500" disabled={loading}>
-            {loading ? "Salvando..." : "Salvar Registro"}
-            {!loading && <Check className="ml-2 h-4 w-4" />}
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                Salvar Registro
+                <Check className="ml-2 h-4 w-4" />
+              </>
+            )}
           </Button>
         </form>
         <Toaster />
