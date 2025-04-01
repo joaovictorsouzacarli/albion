@@ -43,10 +43,10 @@ export function HpsRanking() {
 
   return (
     <>
-      <Card className="border-amber-900/50 bg-black/50 backdrop-blur-sm">
+      <Card className="border-blue-900/50 bg-black/50 backdrop-blur-sm">
         <CardHeader className="pb-2">
           <CardTitle className="text-2xl flex items-center gap-2">
-            <Heart className="h-6 w-6 text-amber-400" />
+            <Heart className="h-6 w-6 text-[#00c8ff]" />
             Ranking de HPS
           </CardTitle>
         </CardHeader>
@@ -54,7 +54,7 @@ export function HpsRanking() {
           {loading ? (
             // Esqueleto de carregamento
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 mb-4 p-4 border border-amber-900/30 rounded-lg">
+              <div key={i} className="flex items-center gap-4 mb-4 p-4 border border-blue-900/30 rounded-lg">
                 <Skeleton className="h-12 w-12 rounded-full" />
                 <div className="space-y-2 flex-1">
                   <Skeleton className="h-4 w-[250px]" />
@@ -66,16 +66,16 @@ export function HpsRanking() {
           ) : (
             <div className="space-y-4">
               {players.length === 0 ? (
-                <div className="text-center py-8 text-amber-400/70">Nenhum registro de HPS encontrado</div>
+                <div className="text-center py-8 text-[#00c8ff]/70">Nenhum registro de HPS encontrado</div>
               ) : (
                 players.map((player, index) => (
                   <div
                     key={player.id}
-                    className={`flex items-center gap-4 p-4 border border-amber-900/30 rounded-lg ${
-                      index === 0 ? "bg-amber-400/10" : ""
+                    className={`flex items-center gap-4 p-4 border border-blue-900/30 rounded-lg ${
+                      index === 0 ? "bg-[#00c8ff]/10" : ""
                     }`}
                   >
-                    <div className="flex items-center justify-center h-12 w-12 rounded-full bg-black border-2 border-amber-400 text-amber-400 font-bold">
+                    <div className="flex items-center justify-center h-12 w-12 rounded-full bg-black border-2 border-[#00c8ff] text-[#00c8ff] font-bold">
                       {index === 0 ? <Trophy className="h-6 w-6" /> : <span>{index + 1}</span>}
                     </div>
                     <div className="flex-1">
@@ -85,19 +85,19 @@ export function HpsRanking() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-6 w-6 rounded-full hover:bg-amber-400/10"
+                          className="h-6 w-6 rounded-full hover:bg-[#00c8ff]/10"
                           onClick={() => handleOpenDetails(player.name)}
                         >
                           <Info className="h-4 w-4" />
                           <span className="sr-only">Detalhes de {player.name}</span>
                         </Button>
                       </div>
-                      <div className="text-sm text-amber-400/70">
+                      <div className="text-sm text-[#00c8ff]/70">
                         Média: {player.averageValue.toLocaleString()} HPS ({player.entries} caçadas)
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xl font-bold">
-                      <Heart className="h-5 w-5 text-amber-400" />
+                      <Heart className="h-5 w-5 text-[#00c8ff]" />
                       {player.value.toLocaleString()}
                     </div>
                   </div>

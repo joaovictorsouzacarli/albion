@@ -1,36 +1,32 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
+
+// Credenciais fixas do administrador
+const ADMIN_USERNAME = "TioBarney"
+const ADMIN_PASSWORD = "javalol"
 
 export async function POST(request: Request) {
   try {
-    const { username, password } = await request.json()
+    const body = await request.json()
+    const { username, password } = body
 
-    console.log("Tentativa de login:", { username }) // Log para debug
+    console.log("Tentativa de login:", { username })
 
-    // Buscar usuário pelo username
-    const { data: user, error: fetchError } = await supabase.from("users").select("*").eq("username", username).single()
+    // Verificar se as credenciais correspondem às credenciais fixas
+    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+      console.log("Login bem-sucedido para:", username)
 
-    if (fetchError) {
-      console.error("Erro ao buscar usuário:", fetchError)
-      return NextResponse.json({ error: "Usuário ou senha inválidos" }, { status: 401 })
+      // Retornar informações do usuário (sem senha)
+      return NextResponse.json({
+        username: ADMIN_USERNAME,
+        role: "admin",
+      })
     }
 
-    console.log("Usuário encontrado:", user) // Log para debug
-
-    // Verificar senha
-    if (user.password !== password) {
-      console.log("Senha incorreta") // Log para debug
-      return NextResponse.json({ error: "Usuário ou senha inválidos" }, { status: 401 })
-    }
-
-    // Retornar dados do usuário (sem a senha)
-    const { password: _, ...userWithoutPassword } = user
-
-    console.log("Login bem-sucedido:", userWithoutPassword) // Log para debug
-
-    return NextResponse.json(userWithoutPassword)
+    // Credenciais inválidas
+    console.log("Credenciais inválidas para:", username)
+    return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 })
   } catch (error) {
-    console.error("Erro ao fazer login:", error)
+    console.error("Erro no login:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }

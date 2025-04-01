@@ -99,7 +99,7 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl bg-black border-amber-900/50 text-amber-400">
+      <DialogContent className="max-w-4xl bg-black border-blue-900/50 text-[#00c8ff]">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <User className="h-6 w-6" />
@@ -117,20 +117,20 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
           <div className="p-4 text-red-400 border border-red-900/50 rounded-md">{error}</div>
         ) : playerData ? (
           <Tabs defaultValue="summary" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-black border border-amber-900/50">
-              <TabsTrigger value="summary" className="data-[state=active]:bg-amber-400 data-[state=active]:text-black">
+            <TabsList className="grid w-full grid-cols-2 bg-black border border-blue-900/50">
+              <TabsTrigger value="summary" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
                 Resumo por Classe
               </TabsTrigger>
-              <TabsTrigger value="history" className="data-[state=active]:bg-amber-400 data-[state=active]:text-black">
+              <TabsTrigger value="history" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
                 Histórico Completo
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="summary">
-              <div className="rounded-md border border-amber-900/50 overflow-hidden">
+              <div className="rounded-md border border-blue-900/50 overflow-hidden">
                 <Table>
                   <TableHeader className="bg-black">
-                    <TableRow className="hover:bg-transparent border-amber-900/50">
+                    <TableRow className="hover:bg-transparent border-blue-900/50">
                       <TableHead>Classe</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead className="text-right">Melhor Valor</TableHead>
@@ -140,19 +140,19 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
                   </TableHeader>
                   <TableBody>
                     {playerData.classSummary.map((summary, index) => (
-                      <TableRow key={index} className="hover:bg-amber-950/10 border-amber-900/30">
+                      <TableRow key={index} className="hover:bg-blue-950/10 border-blue-900/30">
                         <TableCell>
                           <Badge className={`${getClassColor(summary.class)} text-white`}>{summary.class}</Badge>
                         </TableCell>
                         <TableCell>
                           {summary.type === "dps" ? (
                             <span className="flex items-center gap-1">
-                              <Flame className="h-4 w-4 text-amber-400" />
+                              <Flame className="h-4 w-4 text-[#00c8ff]" />
                               DPS
                             </span>
                           ) : (
                             <span className="flex items-center gap-1">
-                              <Heart className="h-4 w-4 text-amber-400" />
+                              <Heart className="h-4 w-4 text-[#00c8ff]" />
                               HPS
                             </span>
                           )}
@@ -168,10 +168,10 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
             </TabsContent>
 
             <TabsContent value="history">
-              <div className="rounded-md border border-amber-900/50 overflow-hidden">
+              <div className="rounded-md border border-blue-900/50 overflow-hidden">
                 <Table>
                   <TableHeader className="bg-black">
-                    <TableRow className="hover:bg-transparent border-amber-900/50">
+                    <TableRow className="hover:bg-transparent border-blue-900/50">
                       <TableHead>Data</TableHead>
                       <TableHead>Classe</TableHead>
                       <TableHead>Tipo</TableHead>
@@ -180,10 +180,10 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
                   </TableHeader>
                   <TableBody>
                     {playerData.allRecords.map((record) => (
-                      <TableRow key={record.id} className="hover:bg-amber-950/10 border-amber-900/30">
+                      <TableRow key={record.id} className="hover:bg-blue-950/10 border-blue-900/30">
                         <TableCell>
                           <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4 text-amber-400/70" />
+                            <Calendar className="h-4 w-4 text-[#00c8ff]/70" />
                             {formatDate(record.date)}
                           </div>
                         </TableCell>
@@ -193,12 +193,12 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
                         <TableCell>
                           {record.type === "dps" ? (
                             <span className="flex items-center gap-1">
-                              <Flame className="h-4 w-4 text-amber-400" />
+                              <Flame className="h-4 w-4 text-[#00c8ff]" />
                               DPS
                             </span>
                           ) : (
                             <span className="flex items-center gap-1">
-                              <Heart className="h-4 w-4 text-amber-400" />
+                              <Heart className="h-4 w-4 text-[#00c8ff]" />
                               HPS
                             </span>
                           )}

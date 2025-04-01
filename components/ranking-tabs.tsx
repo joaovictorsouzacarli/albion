@@ -7,11 +7,11 @@ import { HpsRanking } from "@/components/hps-ranking"
 export function RankingTabs() {
   return (
     <Tabs defaultValue="dps" className="w-full">
-      <TabsList className="grid w-full grid-cols-2 bg-black border border-amber-900/50">
-        <TabsTrigger value="dps" className="data-[state=active]:bg-amber-400 data-[state=active]:text-black">
+      <TabsList className="grid w-full grid-cols-2 bg-black border border-blue-900/50">
+        <TabsTrigger value="dps" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
           TOP DPS
         </TabsTrigger>
-        <TabsTrigger value="hps" className="data-[state=active]:bg-amber-400 data-[state=active]:text-black">
+        <TabsTrigger value="hps" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
           TOP HPS
         </TabsTrigger>
       </TabsList>

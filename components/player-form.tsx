@@ -36,6 +36,7 @@ export function PlayerForm() {
     value: "",
   })
   const [loading, setLoading] = useState(false)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -57,6 +58,7 @@ export function PlayerForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setDebugInfo(null)
 
     // Validação básica
     if (!formData.playerName || !formData.class || !formData.value) {
@@ -82,24 +84,27 @@ export function PlayerForm() {
     }
 
     try {
-      console.log("Enviando dados:", formData)
+      const requestData = {
+        playerName: formData.playerName,
+        class: formData.class,
+        value: formData.value,
+        type: formData.type,
+      }
+
+      console.log("Enviando dados:", requestData)
 
       const response = await fetch("/api/records", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          playerName: formData.playerName,
-          class: formData.class,
-          value: formData.value,
-          type: formData.type,
-        }),
+        body: JSON.stringify(requestData),
       })
 
       const data = await response.json()
 
       console.log("Resposta do servidor:", data)
+      setDebugInfo({ request: requestData, response: data, status: response.status })
 
       if (!response.ok) {
         throw new Error(data.error || "Erro ao adicionar registro")
@@ -130,7 +135,7 @@ export function PlayerForm() {
   }
 
   return (
-    <Card className="border-amber-900/50 bg-black/30">
+    <Card className="border-blue-900/50 bg-black/30">
       <CardContent className="pt-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
@@ -141,7 +146,7 @@ export function PlayerForm() {
               value={formData.playerName}
               onChange={handleChange}
               placeholder="Digite o nome do jogador"
-              className="bg-black/50 border-amber-900/50"
+              className="bg-black/50 border-blue-900/50"
             />
           </div>
 
@@ -149,11 +154,11 @@ export function PlayerForm() {
             <Label>Tipo de Registro</Label>
             <RadioGroup value={formData.type} onValueChange={handleTypeChange} className="flex space-x-4">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="dps" id="dps" className="border-amber-400 text-amber-400" />
+                <RadioGroupItem value="dps" id="dps" className="border-[#00c8ff] text-[#00c8ff]" />
                 <Label htmlFor="dps">DPS (Dano)</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="hps" id="hps" className="border-amber-400 text-amber-400" />
+                <RadioGroupItem value="hps" id="hps" className="border-[#00c8ff] text-[#00c8ff]" />
                 <Label htmlFor="hps">HPS (Cura)</Label>
               </div>
             </RadioGroup>
@@ -162,10 +167,10 @@ export function PlayerForm() {
           <div className="space-y-2">
             <Label htmlFor="class">Classe</Label>
             <Select value={formData.class} onValueChange={handleClassChange}>
-              <SelectTrigger className="bg-black/50 border-amber-900/50">
+              <SelectTrigger className="bg-black/50 border-blue-900/50">
                 <SelectValue placeholder="Selecione a classe" />
               </SelectTrigger>
-              <SelectContent className="bg-black border-amber-900/50">
+              <SelectContent className="bg-black border-blue-900/50">
                 {formData.type === "dps"
                   ? DPS_CLASSES.map((dpsClass) => (
                       <SelectItem key={dpsClass} value={dpsClass}>
@@ -191,11 +196,11 @@ export function PlayerForm() {
               placeholder="Digite o valor"
               type="number"
               min="1"
-              className="bg-black/50 border-amber-900/50"
+              className="bg-black/50 border-blue-900/50"
             />
           </div>
 
-          <Button type="submit" className="w-full bg-amber-400 text-black hover:bg-amber-500" disabled={loading}>
+          <Button type="submit" className="w-full bg-[#00c8ff] text-black hover:bg-[#00c8ff]/80" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -209,6 +214,14 @@ export function PlayerForm() {
             )}
           </Button>
         </form>
+
+        {debugInfo && (
+          <div className="mt-4 p-4 border border-blue-900/50 rounded-md bg-black/50 text-xs overflow-auto">
+            <h3 className="font-bold mb-2">Informações de Depuração:</h3>
+            <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+          </div>
+        )}
+
         <Toaster />
       </CardContent>
     </Card>

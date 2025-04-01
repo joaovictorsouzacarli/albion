@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Info } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
 export default function LoginPage() {
@@ -61,15 +61,15 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <div className="relative w-24 h-24 mx-auto mb-4">
-              <Image src="/logo.png" alt="Infernus Logo" fill className="object-contain" />
+              <Image src="/logo.png" alt="Neve Eterna Logo" fill className="object-contain" />
             </div>
-            <h1 className="text-3xl font-bold text-amber-400">INFERNUS</h1>
+            <h1 className="text-3xl font-bold text-[#00c8ff]">NEVE ETERNA</h1>
           </Link>
         </div>
 
-        <Card className="border-amber-900/50 bg-black/80 backdrop-blur-sm">
+        <Card className="border-blue-900/50 bg-black/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-xl text-amber-400">Login Administrativo</CardTitle>
+            <CardTitle className="text-xl text-[#00c8ff]">Login Administrativo</CardTitle>
             <CardDescription>Acesse o painel para gerenciar o ranking de caçadas</CardDescription>
           </CardHeader>
           <CardContent>
@@ -79,6 +79,12 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            <Alert className="mb-4 bg-blue-900/20 border-blue-900/50">
+              <Info className="h-4 w-4 text-[#00c8ff]" />
+              <AlertDescription className="text-[#00c8ff]/80">Usuário: TioBarney</AlertDescription>
+            </Alert>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username">Usuário</Label>
@@ -87,7 +93,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="bg-black/50 border-amber-900/50 focus:border-amber-400"
+                  className="bg-black/50 border-blue-900/50 focus:border-[#00c8ff]"
                 />
               </div>
               <div className="space-y-2">
@@ -98,16 +104,16 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-black/50 border-amber-900/50 focus:border-amber-400"
+                  className="bg-black/50 border-blue-900/50 focus:border-[#00c8ff]"
                 />
               </div>
-              <Button type="submit" className="w-full bg-amber-400 text-black hover:bg-amber-500" disabled={loading}>
+              <Button type="submit" className="w-full bg-[#00c8ff] text-black hover:bg-[#00c8ff]/80" disabled={loading}>
                 {loading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Link href="/" className="text-sm text-amber-400/70 hover:text-amber-400">
+            <Link href="/" className="text-sm text-[#00c8ff]/70 hover:text-[#00c8ff]">
               Voltar para a página inicial
             </Link>
           </CardFooter>
