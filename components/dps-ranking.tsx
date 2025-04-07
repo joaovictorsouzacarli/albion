@@ -47,6 +47,7 @@ export function DpsRanking() {
       FROST: "bg-cyan-500",
       ENDEMONIADO: "bg-pink-500",
       "QUEBRA REINO": "bg-yellow-500",
+      REPETIDOR: "bg-indigo-500", // Nova classe com cor índigo
     }
     return colors[className] || "bg-gray-500"
   }
@@ -108,12 +109,12 @@ export function DpsRanking() {
                         </Button>
                       </div>
                       <div className="text-sm text-[#00c8ff]/70">
-                        Média: {player.averageValue.toLocaleString()} DPS ({player.entries} caçadas)
+                        Média: {player.averageValue.toLocaleString("pt-BR")} DPS ({player.entries} caçadas)
                       </div>
                     </div>
                     <div className="flex items-center gap-1 text-xl font-bold">
                       <Flame className="h-5 w-5 text-[#00c8ff]" />
-                      {player.value.toLocaleString()}
+                      {player.value.toLocaleString("pt-BR")}
                     </div>
                   </div>
                 ))

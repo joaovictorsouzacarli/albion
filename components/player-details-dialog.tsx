@@ -81,6 +81,7 @@ export function PlayerDetailsDialog({ playerName, open, onOpenChange }: PlayerDe
       ENDEMONIADO: "bg-pink-500",
       "QUEBRA REINO": "bg-yellow-500",
       "QUEDA SANTA": "bg-green-600",
+      REPETIDOR: "bg-indigo-500", // Nova classe com cor índigo
     }
     return colors[className] || "bg-gray-500"
   }

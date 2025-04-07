@@ -23,6 +23,7 @@ const DPS_CLASSES = [
   "FROST",
   "ENDEMONIADO",
   "QUEBRA REINO",
+  "REPETIDOR", // Nova classe adicionada
 ]
 
 // Classe de HPS disponível
