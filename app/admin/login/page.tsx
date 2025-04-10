@@ -82,7 +82,7 @@ export default function LoginPage() {
 
             <Alert className="mb-4 bg-blue-900/20 border-blue-900/50">
               <Info className="h-4 w-4 text-[#00c8ff]" />
-              <AlertDescription className="text-[#00c8ff]/80">Usuário: TioBarney</AlertDescription>
+              <AlertDescription className="text-[#00c8ff]/80">Usuários: TioBarney ou delimb</AlertDescription>
             </Alert>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -122,4 +122,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

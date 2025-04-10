@@ -1,8 +1,18 @@
 import { NextResponse } from "next/server"
 
-// Credenciais fixas do administrador
-const ADMIN_USERNAME = "TioBarney"
-const ADMIN_PASSWORD = "javalol"
+// Credenciais fixas dos administradores
+const ADMIN_USERS = [
+  {
+    username: "TioBarney",
+    password: "javalol",
+    role: "admin",
+  },
+  {
+    username: "delimb",
+    password: "admin123",
+    role: "admin",
+  },
+]
 
 export async function POST(request: Request) {
   try {
@@ -11,14 +21,16 @@ export async function POST(request: Request) {
 
     console.log("Tentativa de login:", { username })
 
-    // Verificar se as credenciais correspondem às credenciais fixas
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+    // Verificar se as credenciais correspondem a algum dos usuários administradores
+    const adminUser = ADMIN_USERS.find((user) => user.username === username && user.password === password)
+
+    if (adminUser) {
       console.log("Login bem-sucedido para:", username)
 
       // Retornar informações do usuário (sem senha)
       return NextResponse.json({
-        username: ADMIN_USERNAME,
-        role: "admin",
+        username: adminUser.username,
+        role: adminUser.role,
       })
     }
 
@@ -30,4 +42,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
-
