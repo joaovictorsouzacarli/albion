@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
     console.log(`Buscando rankings de ${type}${classFilter ? ` para a classe ${classFilter}` : ""}`)
 
-    // Buscar todos os registros do tipo especificado
+    // Primeiro, vamos buscar todos os registros do tipo especificado
     let query = supabaseAdmin
       .from("records")
       .select(`
@@ -31,6 +31,7 @@ export async function GET(request: Request) {
       query = query.eq("class", classFilter)
     }
 
+    // Executar a consulta
     const { data: records, error } = await query.order("value", { ascending: false })
 
     if (error) {
@@ -38,9 +39,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log(`Encontrados ${records.length} registros brutos`)
+    console.log(`Encontrados ${records?.length || 0} registros brutos`)
 
-    // Verificar se há registros
+    // Se não houver registros, retornar array vazio
     if (!records || records.length === 0) {
       console.log("Nenhum registro encontrado")
       return NextResponse.json([])
@@ -49,64 +50,44 @@ export async function GET(request: Request) {
     // Verificar a estrutura dos registros para depuração
     console.log("Exemplo de registro:", JSON.stringify(records[0], null, 2))
 
-    // Encontrar o melhor registro de cada jogador
-    const playerBestRecords = new Map()
+    // Transformar os registros em um formato mais simples para o frontend
+    const rankings = records
+      .map((record) => {
+        // Verificar se o registro tem as propriedades necessárias
+        if (!record.player_id || !record.players) {
+          console.log("Registro inválido:", record)
+          return null
+        }
 
-    records.forEach((record) => {
-      // Verificar se o registro tem as propriedades necessárias
-      if (!record.player_id || !record.players) {
-        console.log("Registro inválido:", record)
-        return
-      }
-
-      const playerId = record.player_id
-      const playerName = record.players.name
-
-      if (!playerBestRecords.has(playerId) || record.value > playerBestRecords.get(playerId).value) {
-        playerBestRecords.set(playerId, {
+        return {
           id: record.id,
-          playerId: playerId,
-          name: playerName,
+          playerId: record.player_id,
+          name: record.players?.name || "Jogador Desconhecido",
           class: record.class,
           value: record.value,
           date: record.created_at,
-        })
-      }
-    })
-
-    // Calcular estatísticas adicionais para cada jogador
-    const playerStats = new Map()
-
-    records.forEach((record) => {
-      const playerId = record.player_id
-
-      if (!playerStats.has(playerId)) {
-        playerStats.set(playerId, {
+          // Valores fictícios para manter a compatibilidade com o frontend
           entries: 1,
-          totalValue: record.value,
-        })
-      } else {
-        const stats = playerStats.get(playerId)
-        stats.entries += 1
-        stats.totalValue += record.value
-      }
-    })
-
-    // Combinar os melhores registros com as estatísticas
-    const rankings = Array.from(playerBestRecords.values()).map((record) => {
-      const stats = playerStats.get(record.playerId)
-      return {
-        ...record,
-        entries: stats.entries,
-        averageValue: Math.round(stats.totalValue / stats.entries),
-      }
-    })
+          averageValue: record.value,
+        }
+      })
+      .filter(Boolean) // Remover itens nulos
 
     // Ordenar por valor (maior para menor)
     rankings.sort((a, b) => b.value - a.value)
 
-    console.log(`Retornando ${rankings.length} registros de ranking processados`)
-    return NextResponse.json(rankings)
+    // Remover duplicatas (manter apenas o melhor valor de cada jogador)
+    const uniquePlayers = new Map()
+    rankings.forEach((record) => {
+      if (!uniquePlayers.has(record.playerId) || record.value > uniquePlayers.get(record.playerId).value) {
+        uniquePlayers.set(record.playerId, record)
+      }
+    })
+
+    const finalRankings = Array.from(uniquePlayers.values())
+
+    console.log(`Retornando ${finalRankings.length} registros de ranking processados`)
+    return NextResponse.json(finalRankings)
   } catch (error) {
     console.error("Erro ao buscar rankings:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

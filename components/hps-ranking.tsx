@@ -36,17 +36,32 @@ export function HpsRanking() {
       console.log("Buscando rankings de HPS:", url)
 
       const response = await fetch(url)
-      const data = await response.json()
+      const responseText = await response.text() // Obter o texto bruto da resposta
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError)
+        console.log("Resposta bruta:", responseText)
+        throw new Error("Resposta inválida do servidor")
+      }
 
       console.log("Dados recebidos:", data)
       setDebugInfo({
         url,
         status: response.status,
         data: data,
+        responseText: responseText.length > 1000 ? responseText.substring(0, 1000) + "..." : responseText,
       })
 
       if (!response.ok) {
-        throw new Error("Erro ao buscar rankings")
+        throw new Error(data.error || "Erro ao buscar rankings")
+      }
+
+      if (!Array.isArray(data)) {
+        console.error("Resposta não é um array:", data)
+        throw new Error("Formato de resposta inválido")
       }
 
       setPlayers(data)
