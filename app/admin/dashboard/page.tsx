@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PlayerForm } from "@/components/player-form"
 import { PlayersList } from "@/components/players-list"
+import { RecordsManagement } from "@/components/records-management"
 import { Users } from "lucide-react"
 
 export default function DashboardPage() {
@@ -45,12 +46,18 @@ export default function DashboardPage() {
             </CardHeader>
             <CardContent>
               <Tabs defaultValue="list" className="w-full">
-                <TabsList className="grid w-full grid-cols-2 bg-black border border-blue-900/50 mb-6">
+                <TabsList className="grid w-full grid-cols-3 bg-black border border-blue-900/50 mb-6">
                   <TabsTrigger value="list" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
                     Lista de Jogadores
                   </TabsTrigger>
                   <TabsTrigger value="add" className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black">
                     Adicionar Registro
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="records"
+                    className="data-[state=active]:bg-[#00c8ff] data-[state=active]:text-black"
+                  >
+                    Gerenciar Registros
                   </TabsTrigger>
                 </TabsList>
                 <TabsContent value="list">
@@ -58,6 +65,9 @@ export default function DashboardPage() {
                 </TabsContent>
                 <TabsContent value="add">
                   <PlayerForm />
+                </TabsContent>
+                <TabsContent value="records">
+                  <RecordsManagement />
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -67,4 +77,3 @@ export default function DashboardPage() {
     </AdminLayout>
   )
 }
-
