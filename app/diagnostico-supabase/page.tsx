@@ -141,9 +141,15 @@ export default function DiagnosticoSupabasePage() {
                       <span className="font-bold">Registro de teste adicionado com sucesso!</span>
                     </div>
                     <div className="mt-2">
-                      <p><strong>Jogador:</strong> {testeResult.player.name}</p>
-                      <p><strong>DPS:</strong> {testeResult.records.dps.value.toLocaleString()}</p>
-                      <p><strong>HPS:</strong> {testeResult.records.hps.value.toLocaleString()}</p>
+                      <p>
+                        <strong>Jogador:</strong> {testeResult.player.name}
+                      </p>
+                      <p>
+                        <strong>DPS:</strong> {testeResult.records.dps.value.toLocaleString()}
+                      </p>
+                      <p>
+                        <strong>HPS:</strong> {testeResult.records.hps.value.toLocaleString()}
+                      </p>
                     </div>
                   </div>
                 )}
@@ -199,10 +205,13 @@ export default function DiagnosticoSupabasePage() {
 
                 <div className="p-4 bg-blue-900/20 border border-blue-900/50 rounded-md">
                   <h3 className="font-bold text-lg mb-4">Instruções para Resolver Problemas</h3>
-                  
+
                   <ol className="list-decimal list-inside space-y-2">
                     <li>Verifique se as variáveis de ambiente do Supabase estão configuradas corretamente</li>
-                    <li>Certifique-se de que a chave de serviço (service role key) está configurada para operações administrativas</li>
+                    <li>
+                      Certifique-se de que a chave de serviço (service role key) está configurada para operações
+                      administrativas
+                    </li>
                     <li>Verifique se as tabelas "players" e "records" existem no banco de dados</li>
                     <li>Verifique se a relação entre as tabelas está configurada corretamente</li>
                     <li>Use o botão "Adicionar Registro de Teste" para criar dados de teste</li>
@@ -215,5 +224,5 @@ export default function DiagnosticoSupabasePage() {
         </div>
       </div>
     </div>
+  )
 }
-\
