@@ -5,32 +5,50 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Heart, Trophy, Info, Filter, X, Bug } from "lucide-react"
+import { Heart, Trophy, Info, Bug, Calendar, X, Award } from "lucide-react"
 import { PlayerDetailsDialog } from "@/components/player-details-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-
-// Lista de classes HPS disponíveis para filtro
-const HPS_CLASSES = ["QUEDA SANTA"]
 
 export function HpsRanking() {
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedPlayer, setSelectedPlayer] = useState(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
-  const [classFilter, setClassFilter] = useState(null)
   const [debugInfo, setDebugInfo] = useState(null)
   const [showDebug, setShowDebug] = useState(false)
+  const [monthFilter, setMonthFilter] = useState(null)
+  const [yearFilter, setYearFilter] = useState(null)
 
-  // Função para buscar os rankings com base no filtro de classe
+  // Gerar anos (atual e 2 anos anteriores)
+  const currentYear = new Date().getFullYear()
+  const years = [currentYear, currentYear - 1, currentYear - 2]
+
+  // Lista de meses
+  const months = [
+    { value: "1", label: "Janeiro" },
+    { value: "2", label: "Fevereiro" },
+    { value: "3", label: "Março" },
+    { value: "4", label: "Abril" },
+    { value: "5", label: "Maio" },
+    { value: "6", label: "Junho" },
+    { value: "7", label: "Julho" },
+    { value: "8", label: "Agosto" },
+    { value: "9", label: "Setembro" },
+    { value: "10", label: "Outubro" },
+    { value: "11", label: "Novembro" },
+    { value: "12", label: "Dezembro" },
+  ]
+
+  // Função para buscar os rankings com base no filtro de mês
   const fetchRankings = async () => {
     setLoading(true)
     setDebugInfo(null)
 
     try {
-      // Construir a URL com o parâmetro de classe, se fornecido
+      // Construir a URL com os parâmetros de filtro
       let url = "/api/rankings?type=hps"
-      if (classFilter) {
-        url += `&class=${encodeURIComponent(classFilter)}`
+      if (monthFilter && yearFilter) {
+        url += `&month=${encodeURIComponent(monthFilter)}&year=${encodeURIComponent(yearFilter)}`
       }
 
       console.log("Buscando rankings de HPS:", url)
@@ -79,86 +97,108 @@ export function HpsRanking() {
   // Efeito para buscar rankings quando o componente é montado ou o filtro muda
   useEffect(() => {
     fetchRankings()
-  }, [classFilter])
+  }, [monthFilter, yearFilter])
 
   const handleOpenDetails = (playerName) => {
     setSelectedPlayer(playerName)
     setDetailsOpen(true)
   }
 
-  const handleClassFilterChange = (value) => {
-    setClassFilter(value)
+  const handleMonthChange = (value) => {
+    setMonthFilter(value)
   }
 
-  const clearFilter = () => {
-    setClassFilter(null)
+  const handleYearChange = (value) => {
+    setYearFilter(value)
+  }
+
+  const clearMonthFilter = () => {
+    setMonthFilter(null)
+    setYearFilter(null)
   }
 
   const toggleDebug = () => {
     setShowDebug((prev) => !prev)
   }
 
+  // Determinar se o primeiro jogador é o destaque do mês
+  const hasMonthlyHighlight = monthFilter && yearFilter && players.length > 0
+
   return (
     <>
       <Card className="border-blue-900/50 bg-black/50 backdrop-blur-sm">
         <CardHeader className="pb-2">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <Heart className="h-6 w-6 text-[#00c8ff]" />
-              Ranking de HPS
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 rounded-full hover:bg-[#00c8ff]/10"
-                onClick={toggleDebug}
-              >
-                <Bug className="h-4 w-4" />
-                <span className="sr-only">Debug</span>
-              </Button>
-            </CardTitle>
+          <CardTitle className="text-2xl flex items-center gap-2">
+            <Heart className="h-6 w-6 text-[#00c8ff]" />
+            Ranking de HPS
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 rounded-full hover:bg-[#00c8ff]/10"
+              onClick={toggleDebug}
+            >
+              <Bug className="h-4 w-4" />
+              <span className="sr-only">Debug</span>
+            </Button>
+          </CardTitle>
 
-            {HPS_CLASSES.length > 1 && (
-              <div className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="flex-1 sm:flex-initial">
-                  <Select value={classFilter || ""} onValueChange={handleClassFilterChange}>
-                    <SelectTrigger className="bg-black/50 border-blue-900/50 w-full sm:w-[180px]">
-                      <div className="flex items-center gap-2">
-                        <Filter className="h-4 w-4" />
-                        <SelectValue placeholder="Filtrar por classe" />
-                      </div>
+          <div className="mt-4">
+            {/* Filtro de Mês */}
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="h-4 w-4 text-[#00c8ff]/70" />
+                <span className="text-sm text-[#00c8ff]/70">Filtrar por Mês:</span>
+              </div>
+              <div className="flex gap-2">
+                <div className="grid grid-cols-2 gap-2 flex-1">
+                  <Select value={monthFilter || ""} onValueChange={handleMonthChange}>
+                    <SelectTrigger className="bg-black/50 border-blue-900/50">
+                      <SelectValue placeholder="Mês" />
                     </SelectTrigger>
                     <SelectContent className="bg-black border-blue-900/50">
-                      {HPS_CLASSES.map((className) => (
-                        <SelectItem key={className} value={className}>
-                          <div className="flex items-center gap-2">
-                            <span className="w-3 h-3 rounded-full bg-green-600"></span>
-                            {className}
-                          </div>
+                      {months.map((month) => (
+                        <SelectItem key={month.value} value={month.value}>
+                          {month.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={yearFilter || ""} onValueChange={handleYearChange}>
+                    <SelectTrigger className="bg-black/50 border-blue-900/50">
+                      <SelectValue placeholder="Ano" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-black border-blue-900/50">
+                      {years.map((year) => (
+                        <SelectItem key={year} value={String(year)}>
+                          {year}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-
-                {classFilter && (
+                {(monthFilter || yearFilter) && (
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={clearFilter}
+                    onClick={clearMonthFilter}
                     className="h-10 w-10 rounded-full hover:bg-[#00c8ff]/10"
                   >
                     <X className="h-4 w-4" />
-                    <span className="sr-only">Limpar filtro</span>
+                    <span className="sr-only">Limpar filtro de mês</span>
                   </Button>
                 )}
               </div>
-            )}
+            </div>
           </div>
 
-          {classFilter && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-sm text-[#00c8ff]/70">Filtrando por:</span>
-              <Badge className="bg-green-600 text-white">{classFilter}</Badge>
+          {/* Exibir filtros ativos */}
+          {monthFilter && yearFilter && (
+            <div className="flex flex-wrap items-center gap-2 mt-4 p-2 bg-blue-900/10 rounded-md">
+              <span className="text-sm text-[#00c8ff]/70">Filtros ativos:</span>
+              <Badge className="bg-blue-500 text-white">
+                {months.find((m) => m.value === monthFilter)?.label}/{yearFilter}
+              </Badge>
             </div>
           )}
         </CardHeader>
@@ -167,6 +207,39 @@ export function HpsRanking() {
             <div className="mb-4 p-4 border border-blue-900/50 rounded-md bg-black/50 text-xs overflow-auto">
               <h3 className="font-bold mb-2">Informações de Depuração:</h3>
               <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+            </div>
+          )}
+
+          {hasMonthlyHighlight && players.length > 0 && (
+            <div className="mb-6 p-4 border border-yellow-500/30 rounded-lg bg-yellow-500/5">
+              <div className="flex items-center gap-3 mb-2">
+                <Award className="h-6 w-6 text-yellow-500" />
+                <h3 className="text-lg font-bold text-yellow-500">Destaque do Mês</h3>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h4 className="text-xl font-bold">{players[0].name}</h4>
+                    <Badge className="bg-green-600 text-white">{players[0].class}</Badge>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 rounded-full hover:bg-[#00c8ff]/10"
+                      onClick={() => handleOpenDetails(players[0].name)}
+                    >
+                      <Info className="h-4 w-4" />
+                      <span className="sr-only">Detalhes de {players[0].name}</span>
+                    </Button>
+                  </div>
+                  <div className="text-sm text-[#00c8ff]/70">
+                    Média: {players[0].averageValue.toLocaleString("pt-BR")} HPS ({players[0].entries} caçadas)
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 text-2xl font-bold text-yellow-500">
+                  <Heart className="h-6 w-6 text-yellow-500" />
+                  {players[0].value.toLocaleString("pt-BR")}
+                </div>
+              </div>
             </div>
           )}
 
@@ -186,8 +259,10 @@ export function HpsRanking() {
             <div className="space-y-4">
               {players.length === 0 ? (
                 <div className="text-center py-8 text-[#00c8ff]/70">
-                  {classFilter
-                    ? `Nenhum registro de HPS encontrado para a classe ${classFilter}`
+                  {monthFilter
+                    ? `Nenhum registro de HPS encontrado no período de ${
+                        months.find((m) => m.value === monthFilter)?.label
+                      }/${yearFilter}`
                     : "Nenhum registro de HPS encontrado"}
                 </div>
               ) : (
