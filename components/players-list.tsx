@@ -3,17 +3,23 @@
 import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Edit, Trash2, Loader2, RefreshCw, AlertTriangle } from "lucide-react"
+import { Edit, Trash2, Loader2, RefreshCw, AlertTriangle, Save, X } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { toast } from "@/components/ui/use-toast"
 import { Toaster } from "@/components/ui/toaster"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 
 export function PlayersList() {
   const [players, setPlayers] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [editingPlayer, setEditingPlayer] = useState(null)
+  const [editedName, setEditedName] = useState("")
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     fetchPlayers()
@@ -88,7 +94,7 @@ export function PlayersList() {
 
       toast({
         title: "Sucesso",
-        description: `Jogador "${name}" excluído com sucesso`,
+        description: `Jogador "${name}" excluído com sucesso!`,
       })
 
       // Atualizar a lista
@@ -104,11 +110,54 @@ export function PlayersList() {
   }
 
   const handleEditPlayer = (id, name) => {
-    // Por enquanto, apenas mostrar um alerta
-    toast({
-      title: "Edição de jogador",
-      description: `Funcionalidade de edição para "${name}" será implementada em breve.`,
-    })
+    setEditingPlayer({ id, name })
+    setEditedName(name)
+    setIsEditDialogOpen(true)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editedName.trim()) {
+      toast({
+        title: "Erro",
+        description: "O nome do jogador não pode estar vazio",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsSaving(true)
+
+    try {
+      const { error } = await supabase.from("players").update({ name: editedName }).eq("id", editingPlayer.id)
+
+      if (error) {
+        throw error
+      }
+
+      toast({
+        title: "Sucesso",
+        description: `Jogador "${editingPlayer.name}" atualizado para "${editedName}"`,
+      })
+
+      // Fechar o diálogo e atualizar a lista
+      setIsEditDialogOpen(false)
+      fetchPlayers()
+    } catch (err) {
+      console.error("Erro ao atualizar jogador:", err)
+      toast({
+        title: "Erro",
+        description: err.message || "Erro ao atualizar jogador",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const closeEditDialog = () => {
+    setIsEditDialogOpen(false)
+    setEditingPlayer(null)
+    setEditedName("")
   }
 
   return (
@@ -194,6 +243,52 @@ export function PlayersList() {
             )}
           </TableBody>
         </Table>
+
+        {/* Diálogo de Edição */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="bg-black border-blue-900/50 text-[#00c8ff]">
+            <DialogHeader>
+              <DialogTitle>Editar Jogador</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <label htmlFor="playerName" className="block text-sm font-medium mb-2">
+                Nome do Jogador
+              </label>
+              <Input
+                id="playerName"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                className="bg-black/50 border-blue-900/50 focus:border-[#00c8ff]"
+                placeholder="Digite o novo nome do jogador"
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={closeEditDialog} className="border-blue-900/50 hover:bg-blue-900/20">
+                <X className="h-4 w-4 mr-2" />
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleSaveEdit}
+                disabled={isSaving}
+                className="bg-[#00c8ff] text-black hover:bg-[#00c8ff]/80"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Salvando...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Salvar
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Toaster />
       </CardContent>
     </Card>
