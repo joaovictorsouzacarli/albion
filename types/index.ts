@@ -1,53 +1,22 @@
-export type User = {
+export type RankingPlayer = {
   id: string
-  username: string
-  created_at: string
-}
-
-export type Player = {
-  id: string
+  playerId: string
   name: string
-  created_at: string
-}
-
-export type Record = {
-  id: string
-  player_id: string
-  player_name?: string
   class: string
   value: number
-  type: "dps" | "hps"
-  created_at: string
-}
-
-export type ClassSummary = {
-  class: string
-  type: string
-  highestValue: number
+  entries: number
   averageValue: number
-  count: number
-  records: {
-    id: string
-    value: number
-    date: string
-  }[]
 }
 
-export type PlayerDetails = {
-  player: {
+export type PlayerRecord = {
+  id: string
+  player_id: string
+  class: string
+  value: number
+  type: string
+  created_at: string
+  players: {
     id: string
     name: string
   }
-  classSummary: ClassSummary[]
-  allRecords: Record[]
 }
-
-export type RankingPlayer = {
-  id: string
-  name: string
-  class: string
-  value: number
-  averageValue: number
-  entries: number
-}
-

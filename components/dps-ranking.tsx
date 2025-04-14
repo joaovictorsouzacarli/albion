@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Flame, Swords, Trophy, Info, Filter, X } from "lucide-react"
+import { Flame, Swords, Trophy, Info, Filter, X, Bug } from "lucide-react"
 import { PlayerDetailsDialog } from "@/components/player-details-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import type { RankingPlayer } from "@/types"
@@ -29,31 +29,44 @@ export function DpsRanking() {
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false)
   const [classFilter, setClassFilter] = useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
+  const [showDebug, setShowDebug] = useState(false)
 
   // Função para buscar os rankings com base no filtro de classe
   const fetchRankings = async (classFilter: string | null) => {
     setLoading(true)
-    try {
-      let url
+    setDebugInfo(null)
 
+    try {
+      // Construir a URL com o parâmetro de classe, se fornecido
+      let url = "/api/rankings?type=dps"
       if (classFilter) {
-        // Usar a API específica para filtrar por classe
-        url = `/api/rankings/by-class?type=dps&class=${encodeURIComponent(classFilter)}`
-      } else {
-        // Usar a API normal para todos os jogadores
-        url = "/api/rankings?type=dps"
+        url += `&class=${encodeURIComponent(classFilter)}`
       }
 
+      console.log("Buscando rankings de DPS:", url)
+
       const response = await fetch(url)
+      const data = await response.json()
+
+      console.log("Dados recebidos:", data)
+      setDebugInfo({
+        url,
+        status: response.status,
+        data: data,
+      })
 
       if (!response.ok) {
         throw new Error("Erro ao buscar rankings")
       }
 
-      const data = await response.json()
       setPlayers(data)
     } catch (error) {
       console.error("Erro:", error)
+      setDebugInfo((prev) => ({
+        ...prev,
+        error: error instanceof Error ? error.message : "Erro desconhecido",
+      }))
     } finally {
       setLoading(false)
     }
@@ -93,6 +106,10 @@ export function DpsRanking() {
     setClassFilter(null)
   }
 
+  const toggleDebug = () => {
+    setShowDebug((prev) => !prev)
+  }
+
   return (
     <>
       <Card className="border-blue-900/50 bg-black/50 backdrop-blur-sm">
@@ -101,6 +118,15 @@ export function DpsRanking() {
             <CardTitle className="text-2xl flex items-center gap-2">
               <Swords className="h-6 w-6 text-[#00c8ff]" />
               Ranking de DPS
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full hover:bg-[#00c8ff]/10"
+                onClick={toggleDebug}
+              >
+                <Bug className="h-4 w-4" />
+                <span className="sr-only">Debug</span>
+              </Button>
             </CardTitle>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -147,6 +173,13 @@ export function DpsRanking() {
           )}
         </CardHeader>
         <CardContent>
+          {showDebug && debugInfo && (
+            <div className="mb-4 p-4 border border-blue-900/50 rounded-md bg-black/50 text-xs overflow-auto">
+              <h3 className="font-bold mb-2">Informações de Depuração:</h3>
+              <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
+            </div>
+          )}
+
           {loading ? (
             // Esqueleto de carregamento
             Array.from({ length: 5 }).map((_, i) => (
