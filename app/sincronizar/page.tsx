@@ -10,18 +10,44 @@ export default function SincronizarPage() {
   const [result, setResult] = useState<any>(null)
   const [error, setError] = useState<string | null>(null)
   const [correcaoResult, setCorrecaoResult] = useState<any>(null)
+  const [debugInfo, setDebugInfo] = useState<any>(null)
 
   const sincronizarDados = async () => {
     setLoading(true)
     setError(null)
     setResult(null)
+    setDebugInfo(null)
 
     try {
-      const response = await fetch("/api/sincronizar-dados", {
+      // Usar o caminho absoluto para evitar problemas com a URL base
+      const baseUrl = window.location.origin
+      const url = `${baseUrl}/api/sincronizar-dados`
+
+      console.log("Fazendo requisição para:", url)
+
+      const response = await fetch(url, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
 
-      const data = await response.json()
+      const responseText = await response.text()
+      console.log("Resposta bruta:", responseText)
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError)
+        throw new Error(`Resposta inválida do servidor: ${responseText}`)
+      }
+
+      setDebugInfo({
+        url,
+        status: response.status,
+        responseText: responseText.length > 1000 ? responseText.substring(0, 1000) + "..." : responseText,
+      })
 
       if (!response.ok) {
         throw new Error(data.error || "Erro ao sincronizar dados")
@@ -39,15 +65,54 @@ export default function SincronizarPage() {
   const testarRankings = async () => {
     setLoading(true)
     setError(null)
+    setDebugInfo(null)
 
     try {
+      // Usar o caminho absoluto para evitar problemas com a URL base
+      const baseUrl = window.location.origin
+
       // Testar DPS
-      const dpsResponse = await fetch("/api/rankings?type=dps")
-      const dpsData = await dpsResponse.json()
+      const dpsUrl = `${baseUrl}/api/rankings?type=dps`
+      console.log("Testando ranking DPS:", dpsUrl)
+
+      const dpsResponse = await fetch(dpsUrl)
+      const dpsResponseText = await dpsResponse.text()
+
+      let dpsData
+      try {
+        dpsData = JSON.parse(dpsResponseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON (DPS):", parseError)
+        throw new Error(`Resposta inválida do servidor (DPS): ${dpsResponseText}`)
+      }
 
       // Testar HPS
-      const hpsResponse = await fetch("/api/rankings?type=hps")
-      const hpsData = await hpsResponse.json()
+      const hpsUrl = `${baseUrl}/api/rankings?type=hps`
+      console.log("Testando ranking HPS:", hpsUrl)
+
+      const hpsResponse = await fetch(hpsUrl)
+      const hpsResponseText = await hpsResponse.text()
+
+      let hpsData
+      try {
+        hpsData = JSON.parse(hpsResponseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON (HPS):", parseError)
+        throw new Error(`Resposta inválida do servidor (HPS): ${hpsResponseText}`)
+      }
+
+      setDebugInfo({
+        dps: {
+          url: dpsUrl,
+          status: dpsResponse.status,
+          responseText: dpsResponseText.length > 1000 ? dpsResponseText.substring(0, 1000) + "..." : dpsResponseText,
+        },
+        hps: {
+          url: hpsUrl,
+          status: hpsResponse.status,
+          responseText: hpsResponseText.length > 1000 ? hpsResponseText.substring(0, 1000) + "..." : hpsResponseText,
+        },
+      })
 
       setResult((prev: any) => ({
         ...prev,
@@ -76,22 +141,44 @@ export default function SincronizarPage() {
     setLoading(true)
     setError(null)
     setCorrecaoResult(null)
+    setDebugInfo(null)
 
     try {
-      const response = await fetch("/api/corrigir-relacoes", {
+      // Usar o caminho absoluto para evitar problemas com a URL base
+      const baseUrl = window.location.origin
+      const url = `${baseUrl}/api/corrigir-relacoes`
+
+      console.log("Fazendo requisição para:", url)
+
+      const response = await fetch(url, {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       })
 
-      const data = await response.json()
+      const responseText = await response.text()
+      console.log("Resposta bruta:", responseText)
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError)
+        throw new Error(`Resposta inválida do servidor: ${responseText}`)
+      }
+
+      setDebugInfo({
+        url,
+        status: response.status,
+        responseText: responseText.length > 1000 ? responseText.substring(0, 1000) + "..." : responseText,
+      })
 
       if (!response.ok) {
         throw new Error(data.error || "Erro ao corrigir relações")
       }
 
       setCorrecaoResult(data)
-
-      // Atualizar diagnóstico após correção
-      await sincronizarDados()
     } catch (err) {
       console.error("Erro:", err)
       setError(err instanceof Error ? err.message : "Erro desconhecido")
@@ -113,7 +200,7 @@ export default function SincronizarPage() {
             </CardHeader>
             <CardContent>
               <div className="flex flex-col gap-4">
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-4">
                   <Button
                     onClick={sincronizarDados}
                     disabled={loading}
@@ -170,6 +257,13 @@ export default function SincronizarPage() {
                       <span className="font-bold">Erro</span>
                     </div>
                     {error}
+                  </div>
+                )}
+
+                {debugInfo && (
+                  <div className="p-4 bg-gray-900/20 border border-gray-900/50 rounded-md text-xs overflow-auto">
+                    <h3 className="font-bold mb-2">Informações de Depuração:</h3>
+                    <pre>{JSON.stringify(debugInfo, null, 2)}</pre>
                   </div>
                 )}
 

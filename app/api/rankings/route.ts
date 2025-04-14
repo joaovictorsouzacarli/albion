@@ -90,6 +90,11 @@ export async function GET(request: Request) {
     return NextResponse.json(finalRankings)
   } catch (error) {
     console.error("Erro ao buscar rankings:", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor: " + (error instanceof Error ? error.message : String(error)),
+      },
+      { status: 500 },
+    )
   }
 }

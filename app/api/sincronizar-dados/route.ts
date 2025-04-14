@@ -11,10 +11,10 @@ export async function POST(request: Request) {
 
     if (playersError) {
       console.error("Erro ao buscar jogadores:", playersError)
-      return NextResponse.json({ error: "Erro ao buscar jogadores" }, { status: 500 })
+      return NextResponse.json({ error: "Erro ao buscar jogadores: " + playersError.message }, { status: 500 })
     }
 
-    console.log(`Encontrados ${players.length} jogadores no banco de dados`)
+    console.log(`Encontrados ${players?.length || 0} jogadores no banco de dados`)
 
     // 2. Verificar registros existentes
     console.log("Buscando registros existentes...")
@@ -29,22 +29,22 @@ export async function POST(request: Request) {
 
     if (recordsError) {
       console.error("Erro ao buscar registros:", recordsError)
-      return NextResponse.json({ error: "Erro ao buscar registros" }, { status: 500 })
+      return NextResponse.json({ error: "Erro ao buscar registros: " + recordsError.message }, { status: 500 })
     }
 
-    console.log(`Encontrados ${records.length} registros no banco de dados`)
+    console.log(`Encontrados ${records?.length || 0} registros no banco de dados`)
 
     // 3. Verificar relações entre jogadores e registros
     console.log("Verificando relações entre jogadores e registros...")
 
     // Mapear jogadores por ID para verificação rápida
     const playerMap = new Map()
-    players.forEach((player) => {
+    players?.forEach((player) => {
       playerMap.set(player.id, player)
     })
 
     // Verificar registros sem jogador associado
-    const orphanedRecords = records.filter((record) => !playerMap.has(record.player_id))
+    const orphanedRecords = records?.filter((record) => !playerMap.has(record.player_id)) || []
 
     if (orphanedRecords.length > 0) {
       console.warn(`Encontrados ${orphanedRecords.length} registros sem jogador associado`)
@@ -52,16 +52,17 @@ export async function POST(request: Request) {
     }
 
     // 4. Verificar registros de DPS e HPS
-    const dpsRecords = records.filter((record) => record.type === "dps")
-    const hpsRecords = records.filter((record) => record.type === "hps")
+    const dpsRecords = records?.filter((record) => record.type === "dps") || []
+    const hpsRecords = records?.filter((record) => record.type === "hps") || []
 
     console.log(`Registros de DPS: ${dpsRecords.length}`)
     console.log(`Registros de HPS: ${hpsRecords.length}`)
 
     // 5. Verificar jogadores sem registros
-    const playersWithoutRecords = players.filter((player) => {
-      return !records.some((record) => record.player_id === player.id)
-    })
+    const playersWithoutRecords =
+      players?.filter((player) => {
+        return !records?.some((record) => record.player_id === player.id)
+      }) || []
 
     if (playersWithoutRecords.length > 0) {
       console.warn(`Encontrados ${playersWithoutRecords.length} jogadores sem registros`)
@@ -92,11 +93,11 @@ export async function POST(request: Request) {
 
     if (dpsRankingError) {
       console.error("Erro ao testar ranking de DPS:", dpsRankingError)
-      return NextResponse.json({ error: "Erro ao testar ranking de DPS" }, { status: 500 })
+      return NextResponse.json({ error: "Erro ao testar ranking de DPS: " + dpsRankingError.message }, { status: 500 })
     }
 
     // Verificar se os jogadores estão sendo incluídos corretamente na consulta
-    const dpsRankingWithMissingPlayers = dpsRanking.filter((record) => !record.players)
+    const dpsRankingWithMissingPlayers = dpsRanking?.filter((record) => !record.players) || []
 
     if (dpsRankingWithMissingPlayers.length > 0) {
       console.warn(
@@ -108,21 +109,26 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       stats: {
-        players: players.length,
-        records: records.length,
+        players: players?.length || 0,
+        records: records?.length || 0,
         dpsRecords: dpsRecords.length,
         hpsRecords: hpsRecords.length,
         orphanedRecords: orphanedRecords.length,
         playersWithoutRecords: playersWithoutRecords.length,
         dpsRankingTest: {
-          count: dpsRanking.length,
+          count: dpsRanking?.length || 0,
           missingPlayers: dpsRankingWithMissingPlayers.length,
-          samples: dpsRanking.slice(0, 3),
+          samples: dpsRanking?.slice(0, 3) || [],
         },
       },
     })
   } catch (error) {
     console.error("Erro durante a sincronização:", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor: " + (error instanceof Error ? error.message : String(error)),
+      },
+      { status: 500 },
+    )
   }
 }
