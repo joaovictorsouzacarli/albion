@@ -1,102 +1,86 @@
 import { NextResponse } from "next/server"
-import { supabase } from "@/lib/supabase"
-import type { Record, RankingPlayer } from "@/types"
+import { supabaseAdmin } from "@/lib/supabase"
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || "dps"
+    const classFilter = searchParams.get("class") || null
 
-    // Buscar todos os registros do tipo especificado
-    const { data: records, error } = await supabase
+    console.log(`Buscando rankings de ${type}${classFilter ? ` para a classe ${classFilter}` : ""}`)
+
+    // Primeiro, vamos buscar todos os registros agrupados por jogador e classe
+    const { data: records, error } = await supabaseAdmin
       .from("records")
-      .select("*, players(name)")
+      .select(`
+        id,
+        player_id,
+        class,
+        value,
+        type,
+        created_at,
+        players (
+          id,
+          name
+        )
+      `)
       .eq("type", type)
-      .order("created_at", { ascending: false })
+      .order("value", { ascending: false })
 
     if (error) {
-      throw error
+      console.error("Erro ao buscar registros:", error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    // Processar os registros para o formato necessário
-    const formattedRecords = records.map((record: any) => ({
-      id: record.id,
-      player_id: record.player_id,
-      player_name: record.players?.name,
-      class: record.class,
-      value: record.value,
-      type: record.type,
-      created_at: record.created_at,
-    })) as Record[]
+    // Agrupar registros por jogador e classe
+    const playerClassMap = new Map()
 
-    // Agrupar por jogador
-    const playerMap = new Map<string, any>()
-
-    formattedRecords.forEach((record) => {
+    records.forEach((record) => {
       const playerId = record.player_id
+      const playerClass = record.class
+      const key = `${playerId}-${playerClass}`
 
-      if (!playerMap.has(playerId)) {
-        playerMap.set(playerId, {
-          id: playerId,
-          name: record.player_name,
-          classes: {},
-          bestClass: "",
-          bestValue: 0,
-          totalValue: 0,
-          totalEntries: 0,
+      if (!playerClassMap.has(key) || record.value > playerClassMap.get(key).value) {
+        playerClassMap.set(key, {
+          id: record.id,
+          playerId: playerId,
+          name: record.players.name,
+          class: playerClass,
+          value: record.value,
+          date: record.created_at,
+          entries: 1,
+          totalValue: record.value,
         })
-      }
-
-      const player = playerMap.get(playerId)
-
-      // Agrupar por classe
-      if (!player.classes[record.class]) {
-        player.classes[record.class] = {
-          values: [],
-          total: 0,
-          count: 0,
-          best: 0,
-        }
-      }
-
-      const classData = player.classes[record.class]
-      classData.values.push(record.value)
-      classData.total += record.value
-      classData.count += 1
-
-      if (record.value > classData.best) {
-        classData.best = record.value
-      }
-
-      // Atualizar melhor classe geral
-      if (record.value > player.bestValue) {
-        player.bestValue = record.value
-        player.bestClass = record.class
-      }
-
-      player.totalValue += record.value
-      player.totalEntries += 1
-    })
-
-    // Converter para array e calcular médias
-    const rankings: RankingPlayer[] = Array.from(playerMap.values()).map((player) => {
-      return {
-        id: player.id,
-        name: player.name,
-        class: player.bestClass,
-        value: player.bestValue,
-        averageValue: Math.round(player.totalValue / player.totalEntries),
-        entries: player.totalEntries,
+      } else {
+        const existing = playerClassMap.get(key)
+        existing.entries += 1
+        existing.totalValue += record.value
       }
     })
 
-    // Ordenar por valor mais alto
+    // Converter o mapa em um array
+    let rankings = Array.from(playerClassMap.values()).map((item) => ({
+      id: item.id,
+      playerId: item.playerId,
+      name: item.name,
+      class: item.class,
+      value: item.value,
+      entries: item.entries,
+      averageValue: Math.round(item.totalValue / item.entries),
+    }))
+
+    // Aplicar filtro de classe se fornecido
+    if (classFilter) {
+      rankings = rankings.filter((item) => item.class === classFilter)
+    }
+
+    // Ordenar por valor (maior para menor)
     rankings.sort((a, b) => b.value - a.value)
 
+    console.log(`Retornando ${rankings.length} registros de ranking`)
     return NextResponse.json(rankings)
   } catch (error) {
     console.error("Erro ao buscar rankings:", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
   }
 }
-

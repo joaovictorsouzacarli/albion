@@ -25,43 +25,40 @@ const DPS_CLASSES = [
 
 export function DpsRanking() {
   const [players, setPlayers] = useState<RankingPlayer[]>([])
-  const [filteredPlayers, setFilteredPlayers] = useState<RankingPlayer[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [detailsOpen, setDetailsOpen] = useState<boolean>(false)
   const [classFilter, setClassFilter] = useState<string | null>(null)
 
-  useEffect(() => {
-    const fetchRankings = async () => {
-      try {
-        const response = await fetch("/api/rankings?type=dps")
-
-        if (!response.ok) {
-          throw new Error("Erro ao buscar rankings")
-        }
-
-        const data = await response.json()
-        setPlayers(data)
-        setFilteredPlayers(data)
-      } catch (error) {
-        console.error("Erro:", error)
-      } finally {
-        setLoading(false)
+  // Função para buscar os rankings com base no filtro de classe
+  const fetchRankings = async (classFilter: string | null) => {
+    setLoading(true)
+    try {
+      // Construir a URL com o parâmetro de classe, se fornecido
+      let url = "/api/rankings?type=dps"
+      if (classFilter) {
+        url += `&class=${encodeURIComponent(classFilter)}`
       }
+
+      const response = await fetch(url)
+
+      if (!response.ok) {
+        throw new Error("Erro ao buscar rankings")
+      }
+
+      const data = await response.json()
+      setPlayers(data)
+    } catch (error) {
+      console.error("Erro:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchRankings()
-  }, [])
-
-  // Efeito para filtrar jogadores quando o filtro de classe muda
+  // Efeito para buscar rankings quando o componente é montado ou o filtro muda
   useEffect(() => {
-    if (classFilter) {
-      const filtered = players.filter((player) => player.class === classFilter)
-      setFilteredPlayers(filtered)
-    } else {
-      setFilteredPlayers(players)
-    }
-  }, [classFilter, players])
+    fetchRankings(classFilter)
+  }, [classFilter])
 
   // Função para determinar a cor da classe
   const getClassColor = (className: string) => {
@@ -160,14 +157,14 @@ export function DpsRanking() {
             ))
           ) : (
             <div className="space-y-4">
-              {filteredPlayers.length === 0 ? (
+              {players.length === 0 ? (
                 <div className="text-center py-8 text-[#00c8ff]/70">
                   {classFilter
                     ? `Nenhum registro de DPS encontrado para a classe ${classFilter}`
                     : "Nenhum registro de DPS encontrado"}
                 </div>
               ) : (
-                filteredPlayers.map((player, index) => (
+                players.map((player, index) => (
                   <div
                     key={player.id}
                     className={`flex items-center gap-4 p-4 border border-blue-900/30 rounded-lg ${
@@ -213,4 +210,3 @@ export function DpsRanking() {
     </>
   )
 }
-
