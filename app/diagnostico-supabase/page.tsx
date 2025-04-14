@@ -122,6 +122,13 @@ export default function DiagnosticoSupabasePage() {
                       </>
                     )}
                   </Button>
+
+                  <Button
+                    onClick={() => (window.location.href = "/verificar-env")}
+                    className="bg-blue-600 text-white hover:bg-blue-700"
+                  >
+                    Verificar Variáveis de Ambiente
+                  </Button>
                 </div>
 
                 {error && (
