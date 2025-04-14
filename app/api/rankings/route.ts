@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
     console.log(`Buscando rankings de ${type}${classFilter ? ` para a classe ${classFilter}` : ""}`)
 
-    // Primeiro, vamos buscar todos os registros do tipo especificado
+    // Construir a consulta base
     let query = supabaseAdmin
       .from("records")
       .select(`
@@ -51,11 +51,11 @@ export async function GET(request: Request) {
     console.log("Exemplo de registro:", JSON.stringify(records[0], null, 2))
 
     // Transformar os registros em um formato mais simples para o frontend
-    const rankings = records
+    const processedRecords = records
       .map((record) => {
         // Verificar se o registro tem as propriedades necessárias
-        if (!record.player_id || !record.players) {
-          console.log("Registro inválido:", record)
+        if (!record.player_id) {
+          console.log("Registro sem player_id:", record)
           return null
         }
 
@@ -73,18 +73,18 @@ export async function GET(request: Request) {
       })
       .filter(Boolean) // Remover itens nulos
 
-    // Ordenar por valor (maior para menor)
-    rankings.sort((a, b) => b.value - a.value)
-
     // Remover duplicatas (manter apenas o melhor valor de cada jogador)
     const uniquePlayers = new Map()
-    rankings.forEach((record) => {
+    processedRecords.forEach((record) => {
       if (!uniquePlayers.has(record.playerId) || record.value > uniquePlayers.get(record.playerId).value) {
         uniquePlayers.set(record.playerId, record)
       }
     })
 
     const finalRankings = Array.from(uniquePlayers.values())
+
+    // Ordenar por valor (maior para menor)
+    finalRankings.sort((a, b) => b.value - a.value)
 
     console.log(`Retornando ${finalRankings.length} registros de ranking processados`)
     return NextResponse.json(finalRankings)
