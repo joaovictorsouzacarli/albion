@@ -72,6 +72,7 @@ export async function GET(request: Request) {
 
     // Aplicar filtro de classe se fornecido
     if (classFilter) {
+      console.log(`Aplicando filtro para classe: ${classFilter}`)
       query = query.eq("class", classFilter)
     }
 
@@ -131,15 +132,36 @@ export async function GET(request: Request) {
       })
       .filter(Boolean) // Remover itens nulos
 
-    // Remover duplicatas (manter apenas o melhor valor de cada jogador)
-    const uniquePlayers = new Map()
+    // Agrupar por jogador e classe para calcular médias e encontrar valores máximos
+    const playerClassMap = new Map()
+
     processedRecords.forEach((record) => {
-      if (!uniquePlayers.has(record.playerId) || record.value > uniquePlayers.get(record.playerId).value) {
-        uniquePlayers.set(record.playerId, record)
+      const key = `${record.playerId}_${record.class}`
+
+      if (!playerClassMap.has(key)) {
+        playerClassMap.set(key, {
+          ...record,
+          entries: 1,
+          totalValue: record.value,
+          averageValue: record.value,
+        })
+      } else {
+        const existing = playerClassMap.get(key)
+        existing.entries += 1
+        existing.totalValue += record.value
+        existing.averageValue = Math.round(existing.totalValue / existing.entries)
+
+        // Atualizar o valor máximo se o registro atual for maior
+        if (record.value > existing.value) {
+          existing.value = record.value
+          existing.id = record.id
+          existing.date = record.date
+        }
       }
     })
 
-    const finalRankings = Array.from(uniquePlayers.values())
+    // Converter o mapa de volta para um array
+    const finalRankings = Array.from(playerClassMap.values())
 
     // Ordenar por valor (maior para menor)
     finalRankings.sort((a, b) => b.value - a.value)
