@@ -5,12 +5,41 @@ export async function POST(request: Request) {
   try {
     console.log("Iniciando correção de relações...")
 
+    // Verificar a conexão com o Supabase
+    try {
+      const { error: connectionError } = await supabaseAdmin.from("players").select("count")
+
+      if (connectionError) {
+        console.error("Erro de conexão com o Supabase:", connectionError)
+        return NextResponse.json(
+          {
+            error: "Erro de conexão com o Supabase: " + connectionError.message,
+          },
+          { status: 500 },
+        )
+      }
+    } catch (connError) {
+      console.error("Exceção ao conectar com o Supabase:", connError)
+      return NextResponse.json(
+        {
+          error:
+            "Exceção ao conectar com o Supabase: " +
+            (connError instanceof Error ? connError.message : String(connError)),
+        },
+        { status: 500 },
+      )
+    }
+
     // 1. Buscar todos os registros
     const { data: records, error: recordsError } = await supabaseAdmin.from("records").select("*")
 
     if (recordsError) {
       console.error("Erro ao buscar registros:", recordsError)
-      return NextResponse.json({ error: "Erro ao buscar registros" }, { status: 500 })
+      return NextResponse.json({ error: "Erro ao buscar registros: " + recordsError.message }, { status: 500 })
+    }
+
+    if (!records) {
+      return NextResponse.json({ error: "Nenhum registro encontrado ou resposta inválida" }, { status: 500 })
     }
 
     console.log(`Encontrados ${records.length} registros para verificação`)
@@ -20,7 +49,11 @@ export async function POST(request: Request) {
 
     if (playersError) {
       console.error("Erro ao buscar jogadores:", playersError)
-      return NextResponse.json({ error: "Erro ao buscar jogadores" }, { status: 500 })
+      return NextResponse.json({ error: "Erro ao buscar jogadores: " + playersError.message }, { status: 500 })
+    }
+
+    if (!players) {
+      return NextResponse.json({ error: "Nenhum jogador encontrado ou resposta inválida" }, { status: 500 })
     }
 
     console.log(`Encontrados ${players.length} jogadores para verificação`)
@@ -121,6 +154,12 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error("Erro durante a correção de relações:", error)
-    return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor: " + (error instanceof Error ? error.message : String(error)),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+      { status: 500 },
+    )
   }
 }

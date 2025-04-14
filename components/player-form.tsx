@@ -94,7 +94,8 @@ export function PlayerForm() {
 
       console.log("Enviando dados:", requestData)
 
-      const response = await fetch("/api/records", {
+      const baseUrl = window.location.origin
+      const response = await fetch(`${baseUrl}/api/records`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,10 +103,24 @@ export function PlayerForm() {
         body: JSON.stringify(requestData),
       })
 
-      const data = await response.json()
+      const responseText = await response.text()
+      console.log("Resposta bruta do servidor:", responseText)
+
+      let data
+      try {
+        data = JSON.parse(responseText)
+      } catch (parseError) {
+        console.error("Erro ao analisar resposta JSON:", parseError)
+        throw new Error(`Resposta inválida do servidor: ${responseText}`)
+      }
 
       console.log("Resposta do servidor:", data)
-      setDebugInfo({ request: requestData, response: data, status: response.status })
+      setDebugInfo({
+        request: requestData,
+        response: data,
+        status: response.status,
+        responseText: responseText.length > 1000 ? responseText.substring(0, 1000) + "..." : responseText,
+      })
 
       if (!response.ok) {
         throw new Error(data.error || "Erro ao adicionar registro")
@@ -228,4 +243,3 @@ export function PlayerForm() {
     </Card>
   )
 }
-

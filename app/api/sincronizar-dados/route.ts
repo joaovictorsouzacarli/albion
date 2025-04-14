@@ -5,6 +5,35 @@ export async function POST(request: Request) {
   try {
     console.log("Iniciando sincronização de dados...")
 
+    // Verificar a conexão com o Supabase
+    console.log("Verificando conexão com o Supabase...")
+    try {
+      const { data: connectionTest, error: connectionError } = await supabaseAdmin.from("players").select("count")
+
+      if (connectionError) {
+        console.error("Erro de conexão com o Supabase:", connectionError)
+        return NextResponse.json(
+          {
+            error: "Erro de conexão com o Supabase: " + connectionError.message,
+            details: connectionError,
+          },
+          { status: 500 },
+        )
+      }
+
+      console.log("Conexão com o Supabase estabelecida com sucesso")
+    } catch (connError) {
+      console.error("Exceção ao conectar com o Supabase:", connError)
+      return NextResponse.json(
+        {
+          error:
+            "Exceção ao conectar com o Supabase: " +
+            (connError instanceof Error ? connError.message : String(connError)),
+        },
+        { status: 500 },
+      )
+    }
+
     // 1. Verificar jogadores existentes
     console.log("Buscando jogadores existentes...")
     const { data: players, error: playersError } = await supabaseAdmin.from("players").select("*")
@@ -14,7 +43,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Erro ao buscar jogadores: " + playersError.message }, { status: 500 })
     }
 
-    console.log(`Encontrados ${players?.length || 0} jogadores no banco de dados`)
+    if (!players) {
+      console.warn("Nenhum jogador encontrado ou resposta inválida")
+      return NextResponse.json({ error: "Nenhum jogador encontrado ou resposta inválida" }, { status: 500 })
+    }
+
+    console.log(`Encontrados ${players.length} jogadores no banco de dados`)
 
     // 2. Verificar registros existentes
     console.log("Buscando registros existentes...")
@@ -32,19 +66,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Erro ao buscar registros: " + recordsError.message }, { status: 500 })
     }
 
-    console.log(`Encontrados ${records?.length || 0} registros no banco de dados`)
+    if (!records) {
+      console.warn("Nenhum registro encontrado ou resposta inválida")
+      return NextResponse.json({ error: "Nenhum registro encontrado ou resposta inválida" }, { status: 500 })
+    }
+
+    console.log(`Encontrados ${records.length} registros no banco de dados`)
 
     // 3. Verificar relações entre jogadores e registros
     console.log("Verificando relações entre jogadores e registros...")
 
     // Mapear jogadores por ID para verificação rápida
     const playerMap = new Map()
-    players?.forEach((player) => {
+    players.forEach((player) => {
       playerMap.set(player.id, player)
     })
 
     // Verificar registros sem jogador associado
-    const orphanedRecords = records?.filter((record) => !playerMap.has(record.player_id)) || []
+    const orphanedRecords = records.filter((record) => !playerMap.has(record.player_id))
 
     if (orphanedRecords.length > 0) {
       console.warn(`Encontrados ${orphanedRecords.length} registros sem jogador associado`)
@@ -52,17 +91,16 @@ export async function POST(request: Request) {
     }
 
     // 4. Verificar registros de DPS e HPS
-    const dpsRecords = records?.filter((record) => record.type === "dps") || []
-    const hpsRecords = records?.filter((record) => record.type === "hps") || []
+    const dpsRecords = records.filter((record) => record.type === "dps")
+    const hpsRecords = records.filter((record) => record.type === "hps")
 
     console.log(`Registros de DPS: ${dpsRecords.length}`)
     console.log(`Registros de HPS: ${hpsRecords.length}`)
 
     // 5. Verificar jogadores sem registros
-    const playersWithoutRecords =
-      players?.filter((player) => {
-        return !records?.some((record) => record.player_id === player.id)
-      }) || []
+    const playersWithoutRecords = players.filter((player) => {
+      return !records.some((record) => record.player_id === player.id)
+    })
 
     if (playersWithoutRecords.length > 0) {
       console.warn(`Encontrados ${playersWithoutRecords.length} jogadores sem registros`)
@@ -97,7 +135,7 @@ export async function POST(request: Request) {
     }
 
     // Verificar se os jogadores estão sendo incluídos corretamente na consulta
-    const dpsRankingWithMissingPlayers = dpsRanking?.filter((record) => !record.players) || []
+    const dpsRankingWithMissingPlayers = dpsRanking ? dpsRanking.filter((record) => !record.players) : []
 
     if (dpsRankingWithMissingPlayers.length > 0) {
       console.warn(
@@ -109,16 +147,16 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       stats: {
-        players: players?.length || 0,
-        records: records?.length || 0,
+        players: players.length,
+        records: records.length,
         dpsRecords: dpsRecords.length,
         hpsRecords: hpsRecords.length,
         orphanedRecords: orphanedRecords.length,
         playersWithoutRecords: playersWithoutRecords.length,
         dpsRankingTest: {
-          count: dpsRanking?.length || 0,
+          count: dpsRanking ? dpsRanking.length : 0,
           missingPlayers: dpsRankingWithMissingPlayers.length,
-          samples: dpsRanking?.slice(0, 3) || [],
+          samples: dpsRanking ? dpsRanking.slice(0, 3) : [],
         },
       },
     })
@@ -127,6 +165,7 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: "Erro interno do servidor: " + (error instanceof Error ? error.message : String(error)),
+        stack: error instanceof Error ? error.stack : undefined,
       },
       { status: 500 },
     )
