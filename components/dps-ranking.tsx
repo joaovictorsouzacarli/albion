@@ -34,10 +34,14 @@ export function DpsRanking() {
   const fetchRankings = async (classFilter: string | null) => {
     setLoading(true)
     try {
-      // Construir a URL com o parâmetro de classe, se fornecido
-      let url = "/api/rankings?type=dps"
+      let url
+
       if (classFilter) {
-        url += `&class=${encodeURIComponent(classFilter)}`
+        // Usar a API específica para filtrar por classe
+        url = `/api/rankings/by-class?type=dps&class=${encodeURIComponent(classFilter)}`
+      } else {
+        // Usar a API normal para todos os jogadores
+        url = "/api/rankings?type=dps"
       }
 
       const response = await fetch(url)
