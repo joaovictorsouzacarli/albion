@@ -12,6 +12,11 @@ const ADMIN_USERS = [
     password: "admin123",
     role: "admin",
   },
+  {
+    username: "Bacon",
+    password: "admin123",
+    role: "admin",
+  },
 ]
 
 export async function POST(request: Request) {
