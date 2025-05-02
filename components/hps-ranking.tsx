@@ -53,7 +53,10 @@ export function HpsRanking() {
 
       console.log("Buscando rankings de HPS:", url)
 
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        cache: "no-store", // Importante: não usar cache para sempre obter dados atualizados
+      })
+
       const responseText = await response.text() // Obter o texto bruto da resposta
 
       let data
@@ -105,11 +108,11 @@ export function HpsRanking() {
   }
 
   const handleMonthChange = (value) => {
-    setMonthFilter(value)
+    setMonthFilter(value === "all" ? null : value)
   }
 
   const handleYearChange = (value) => {
-    setYearFilter(value)
+    setYearFilter(value === "all" ? null : value)
   }
 
   const clearMonthFilter = () => {
@@ -151,11 +154,12 @@ export function HpsRanking() {
               </div>
               <div className="flex gap-2">
                 <div className="grid grid-cols-2 gap-2 flex-1">
-                  <Select value={monthFilter || ""} onValueChange={handleMonthChange}>
+                  <Select value={monthFilter || "all"} onValueChange={handleMonthChange}>
                     <SelectTrigger className="bg-black/50 border-blue-900/50">
                       <SelectValue placeholder="Mês" />
                     </SelectTrigger>
                     <SelectContent className="bg-black border-blue-900/50">
+                      <SelectItem value="all">Todos os meses</SelectItem>
                       {months.map((month) => (
                         <SelectItem key={month.value} value={month.value}>
                           {month.label}
@@ -164,11 +168,12 @@ export function HpsRanking() {
                     </SelectContent>
                   </Select>
 
-                  <Select value={yearFilter || ""} onValueChange={handleYearChange}>
+                  <Select value={yearFilter || "all"} onValueChange={handleYearChange}>
                     <SelectTrigger className="bg-black/50 border-blue-900/50">
                       <SelectValue placeholder="Ano" />
                     </SelectTrigger>
                     <SelectContent className="bg-black border-blue-900/50">
+                      <SelectItem value="all">Todos os anos</SelectItem>
                       {years.map((year) => (
                         <SelectItem key={year} value={String(year)}>
                           {year}

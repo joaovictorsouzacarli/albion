@@ -6,8 +6,14 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const type = searchParams.get("type") || "dps"
     const classFilter = searchParams.get("class") || null
+    const monthFilter = searchParams.get("month") || null
+    const yearFilter = searchParams.get("year") || null
 
-    console.log(`Buscando rankings de ${type}${classFilter ? ` para a classe ${classFilter}` : ""}`)
+    console.log(
+      `Buscando rankings de ${type}${classFilter ? ` para a classe ${classFilter}` : ""}${
+        monthFilter ? ` do mês ${monthFilter}/${yearFilter}` : ""
+      }`,
+    )
 
     // Verificar a conexão com o Supabase
     try {
@@ -34,25 +40,6 @@ export async function GET(request: Request) {
       )
     }
 
-    // Primeiro, vamos verificar se existem registros do tipo solicitado
-    const { count, error: countError } = await supabaseAdmin
-      .from("records")
-      .select("*", { count: "exact", head: true })
-      .eq("type", type)
-      .limit(1)
-
-    if (countError) {
-      console.error("Erro ao verificar existência de registros:", countError)
-      return NextResponse.json({ error: countError.message }, { status: 500 })
-    }
-
-    console.log(`Contagem de registros do tipo ${type}: ${count}`)
-
-    if (count === 0) {
-      console.log(`Nenhum registro do tipo ${type} encontrado`)
-      return NextResponse.json([])
-    }
-
     // Construir a consulta base
     let query = supabaseAdmin
       .from("records")
@@ -71,9 +58,30 @@ export async function GET(request: Request) {
       .eq("type", type)
 
     // Aplicar filtro de classe se fornecido
-    if (classFilter) {
+    if (classFilter && classFilter !== "all") {
       console.log(`Aplicando filtro para classe: ${classFilter}`)
       query = query.eq("class", classFilter)
+    }
+
+    // Aplicar filtro de mês/ano se fornecido
+    if (monthFilter && yearFilter && monthFilter !== "all" && yearFilter !== "all") {
+      const month = Number.parseInt(monthFilter)
+      const year = Number.parseInt(yearFilter)
+
+      if (!isNaN(month) && !isNaN(year) && month >= 1 && month <= 12) {
+        console.log(`Aplicando filtro para mês: ${month}/${year}`)
+
+        // Criar datas de início e fim do mês com fuso horário UTC
+        const startDate = new Date(Date.UTC(year, month - 1, 1, 0, 0, 0, 0)).toISOString()
+
+        // Último dia do mês (usando o primeiro dia do próximo mês e subtraindo 1 milissegundo)
+        const endDate = new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString()
+
+        console.log(`Período: ${startDate} até ${endDate}`)
+
+        // Filtrar por período
+        query = query.gte("created_at", startDate).lte("created_at", endDate)
+      }
     }
 
     // Executar a consulta
