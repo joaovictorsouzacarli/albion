@@ -96,3 +96,76 @@ body {
   text-shadow: 0 0 10px #00c8ff, 0 0 20px #00c8ff;
 }
 
+/* Estilos para o modo leitura (claro) */
+.light-mode {
+  /* Cores de fundo e texto */
+  background-color: #ffffff;
+  color: #0077b6;
+}
+
+/* Ajustes para elementos específicos no modo leitura */
+.light-mode body {
+  background-color: #ffffff;
+  color: #0077b6;
+}
+
+.light-mode header,
+.light-mode footer {
+  background-color: #f0f9ff;
+  border-color: rgba(0, 119, 182, 0.2);
+}
+
+.light-mode .card,
+.light-mode .bg-black,
+.light-mode .bg-black\/50,
+.light-mode .bg-black\/30,
+.light-mode .bg-black\/80 {
+  background-color: #f8fcff;
+  border-color: rgba(0, 119, 182, 0.2);
+}
+
+.light-mode .border-blue-900\/50 {
+  border-color: rgba(0, 119, 182, 0.2);
+}
+
+.light-mode .text-\[\#00c8ff\] {
+  color: #0077b6;
+}
+
+.light-mode .text-\[\#00c8ff\]\/70 {
+  color: rgba(0, 119, 182, 0.7);
+}
+
+.light-mode .bg-\[\#00c8ff\] {
+  background-color: #0077b6;
+}
+
+.light-mode .hover\:bg-\[\#00c8ff\]\/80:hover {
+  background-color: rgba(0, 119, 182, 0.8);
+}
+
+.light-mode .hover\:bg-\[\#00c8ff\]\/10:hover {
+  background-color: rgba(0, 119, 182, 0.1);
+}
+
+.light-mode .hover\:bg-blue-900\/20:hover {
+  background-color: rgba(0, 119, 182, 0.1);
+}
+
+.light-mode .data-\[state\=active\]\:bg-\[\#00c8ff\][data-state="active"] {
+  background-color: #0077b6;
+}
+
+/* Manter o texto branco em botões azuis */
+.light-mode .bg-\[\#00c8ff\] {
+  color: white;
+}
+
+/* Ajustes para tabelas */
+.light-mode .hover\:bg-blue-950\/10:hover {
+  background-color: rgba(0, 119, 182, 0.05);
+}
+
+.light-mode .border-blue-900\/30 {
+  border-color: rgba(0, 119, 182, 0.1);
+}

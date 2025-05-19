@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { ReadingModeToggle } from "@/components/reading-mode-toggle" // Adicionar esta linha
 
 export function Header() {
   return (
@@ -12,7 +13,9 @@ export function Header() {
           </div>
           <span className="text-2xl font-bold text-[#00c8ff]">NEVE ETERNA</span>
         </Link>
-        <nav>
+        <nav className="flex items-center gap-4">
+          {/* Adicionar o botão de modo leitura */}
+          <ReadingModeToggle />
           <Link href="/admin/login">
             <Button variant="outline" className="border-[#00c8ff] text-[#00c8ff] hover:bg-[#00c8ff]/10">
               Área Administrativa
@@ -23,4 +26,3 @@ export function Header() {
     </header>
   )
 }
-
