@@ -53,11 +53,13 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        // Cores personalizadas para o tema Neve Eterna
-        neve: {
-          blue: "#00c8ff",
+        // Cores personalizadas para o tema Barney
+        barney: {
+          purple: "#8B5CF6", // Roxo principal do Barney
           dark: "#000000",
           light: "#ffffff",
+          accent: "#A855F7", // Roxo mais claro para acentos
+          bright: "#C084FC", // Roxo brilhante
         },
         chart: {
           "1": "hsl(var(--chart-1))",
@@ -102,4 +104,3 @@ const config = {
 } satisfies Config
 
 export default config
-

@@ -56,20 +56,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-black p-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#1f1f23] p-4 admin-layout">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
             <div className="relative w-24 h-24 mx-auto mb-4">
-              <Image src="/logo.png" alt="Neve Eterna Logo" fill className="object-contain" />
+              <Image src="/logo.png" alt="Barney e Seus Amigos Logo" fill className="object-contain" />
             </div>
-            <h1 className="text-3xl font-bold text-[#00c8ff]">NEVE ETERNA</h1>
+            <h1 className="text-3xl font-bold text-[#8B5CF6]">BARNEY E SEUS AMIGOS</h1>
           </Link>
         </div>
 
-        <Card className="border-blue-900/50 bg-black/80 backdrop-blur-sm">
+        <Card className="border-gray-600/50 bg-[#2a2a2e]/80 backdrop-blur-sm">
           <CardHeader>
-            <CardTitle className="text-xl text-[#00c8ff]">Login Administrativo</CardTitle>
+            <CardTitle className="text-xl text-[#8B5CF6]">Login Administrativo</CardTitle>
             <CardDescription>Acesse o painel para gerenciar o ranking de caçadas</CardDescription>
           </CardHeader>
           <CardContent>
@@ -80,9 +80,9 @@ export default function LoginPage() {
               </Alert>
             )}
 
-            <Alert className="mb-4 bg-blue-900/20 border-blue-900/50">
-              <Info className="h-4 w-4 text-[#00c8ff]" />
-              <AlertDescription className="text-[#00c8ff]/80">Usuários: TioBarney ou delimb</AlertDescription>
+            <Alert className="mb-4 bg-purple-900/20 border-purple-900/50">
+              <Info className="h-4 w-4 text-[#8B5CF6]" />
+              <AlertDescription className="text-[#8B5CF6]/80">Usuários: TioBarney ou delimb</AlertDescription>
             </Alert>
 
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,7 +93,7 @@ export default function LoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  className="bg-black/50 border-blue-900/50 focus:border-[#00c8ff]"
+                  className="bg-[#1f1f23]/50 border-gray-600/50 focus:border-[#8B5CF6]"
                 />
               </div>
               <div className="space-y-2">
@@ -104,16 +104,16 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-black/50 border-blue-900/50 focus:border-[#00c8ff]"
+                  className="bg-[#1f1f23]/50 border-gray-600/50 focus:border-[#8B5CF6]"
                 />
               </div>
-              <Button type="submit" className="w-full bg-[#00c8ff] text-black hover:bg-[#00c8ff]/80" disabled={loading}>
+              <Button type="submit" className="w-full bg-[#8B5CF6] text-white hover:bg-[#8B5CF6]/80" disabled={loading}>
                 {loading ? "Entrando..." : "Entrar"}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <Link href="/" className="text-sm text-[#00c8ff]/70 hover:text-[#00c8ff]">
+            <Link href="/" className="text-sm text-[#8B5CF6]/70 hover:text-[#8B5CF6]">
               Voltar para a página inicial
             </Link>
           </CardFooter>

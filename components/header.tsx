@@ -1,23 +1,22 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ReadingModeToggle } from "@/components/reading-mode-toggle" // Adicionar esta linha
+import { ReadingModeToggle } from "@/components/reading-mode-toggle"
 
 export function Header() {
   return (
-    <header className="border-b border-blue-900/50 bg-black">
+    <header className="border-b border-gray-700/50 bg-[#2a2a2e]">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center gap-2">
           <div className="relative w-16 h-16 overflow-hidden">
-            <Image src="/logo.png" alt="Neve Eterna Logo" fill className="object-contain" />
+            <Image src="/logo.png" alt="Barney e Seus Amigos Logo" fill className="object-contain" />
           </div>
-          <span className="text-2xl font-bold text-[#00c8ff]">NEVE ETERNA</span>
+          <span className="text-2xl font-bold text-[#8B5CF6]">BARNEY E SEUS AMIGOS</span>
         </Link>
         <nav className="flex items-center gap-4">
-          {/* Adicionar o botão de modo leitura */}
           <ReadingModeToggle />
           <Link href="/admin/login">
-            <Button variant="outline" className="border-[#00c8ff] text-[#00c8ff] hover:bg-[#00c8ff]/10">
+            <Button variant="outline" className="border-[#8B5CF6] text-[#8B5CF6] hover:bg-[#8B5CF6]/10">
               Área Administrativa
             </Button>
           </Link>
